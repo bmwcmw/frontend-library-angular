@@ -1,17 +1,12 @@
-import { Component } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+/*
+ *  Protractor support is deprecated in Angular.
+ *  Protractor is used in this example for compatibility with Angular documentation tools.
+ */
+import {bootstrapApplication, provideProtractorTestingSupport} from '@angular/platform-browser';
+import {App} from './app/app.component';
+import {provideRouter} from '@angular/router';
+import routeConfig from './app/routes';
 
-@Component({
-  selector: 'app-root',
-  template: `
-    <h1>Hello from {{ name }}!</h1>
-    <a target="_blank" href="https://angular.dev/overview">
-      Learn more about Angular
-    </a>
-  `,
-})
-export class App {
-  name = 'Angular';
-}
-
-bootstrapApplication(App);
+bootstrapApplication(App, {providers: [provideProtractorTestingSupport(),provideRouter(routeConfig)]}).catch((err) =>
+    console.error(err),
+);
