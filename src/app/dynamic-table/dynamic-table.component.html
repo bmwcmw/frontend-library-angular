@@ -1,0 +1,36 @@
+<p>dynamic-table works!</p>
+
+
+Search in
+
+<select [(ngModel)]="headerForFiltering">
+    <option *ngFor = "let v of tableData.headers" [ngValue]="v"> {{v}} </option>
+</select>
+<br/>
+Search value: <input type="text" [(ngModel)]="valueForFiltering" />
+<button type="button" (click)="filter()">Search it!</button>
+<button type="button" (click)="resetFilterResults()">Reset</button>
+
+
+<section>
+    <span>pages:</span>
+
+    @for ( page of [].constructor(totalPages); track $index ; let i = $index) {
+    <span [attr.data-pageNo]="i+1" (click)="switchToPage(i+1)"> {{i+1}} </span>
+
+    }
+</section>
+
+<table>
+    <thead>
+    <tr>
+        <th *ngFor = "let header of displayedTableData.headers" (click)="sort(header)">{{header}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor = "let object of displayedTableData.items">
+        <td *ngFor = "let field of object | keyvalue : null">{{field.value}}</td>
+    </tr>
+    </tbody>
+</table>
+
