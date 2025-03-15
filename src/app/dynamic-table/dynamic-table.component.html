@@ -34,8 +34,9 @@ Search value: <input type="text" [(ngModel)]="valueForFiltering" />
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor = "let object of displayedTableData.items">
-        <td *ngFor = "let field of object | keyvalue : null">{{field.value}}</td>
+    <tr *ngFor = "let object of displayedTableData.items; let i = index">
+       <!-- <td *ngFor = "let field of object | keyvalue : null">{{field.value}}</td>  -->
+        <td *ngFor = "let header of displayedTableData.headers">{{displayedTableData.items[i][header] ?? ''  }}</td>
     </tr>
     </tbody>
 </table>

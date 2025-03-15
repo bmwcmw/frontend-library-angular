@@ -39,6 +39,7 @@ export class DynamicTableComponent {
 
   constructor(){
     this.parseResultsToTableData();
+    console.log(this.displayedTableData);
 
   }
 
@@ -187,10 +188,16 @@ export class DynamicTableComponent {
       for(let i = 0; i < filterOption.headers.length; i++){
         let valueType = typeof(this.tableData.items[0][filterOption.headers[i]]);
         let header = filterOption.headers[i];
-        if( valueType === "number"){
+
+        if(a[header] === undefined) {comparedValue = 1;  return comparedValue;}
+        if(b[header] === undefined) {comparedValue = -1; return comparedValue;}
+
+          if( valueType === "number"){
           comparedValue = Number(a[header])-Number(b[header]);
         }else if( valueType === "string"){
           comparedValue = a[header].localeCompare( b[header]);
+        }else if( valueType === "boolean"){
+          comparedValue = b[header].toString().localeCompare( a[header].toString());
         }else{
           //alert("Sorry, can't sort the table with type "+valueType);
         }

@@ -18,7 +18,7 @@ export class TableDataService {
 }
 
 export interface Row {
-  [key:string]: string;
+  [key:string]: any;
 }
 
 export interface DummyResponse{
