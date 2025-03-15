@@ -1,0 +1,12 @@
+table {
+    border:2px solid black;
+    background-image: linear-gradient(#9cb5ee, #34b3ea);
+
+}
+
+
+table tr td {
+    border:2px solid black;
+    text-align: center;
+
+}

@@ -8,7 +8,8 @@ export class TableDataService {
 
   constructor() { }
 
-  url = 'https://dummyjson.com/products';
+  //url = 'https://dummyjson.com/products';
+  url = 'http://localhost:3000/data';
 
   async getAllData(): Promise<DummyResponse> {
     const data = await fetch(this.url);
@@ -26,3 +27,4 @@ export interface DummyResponse{
   skip : number;
   limit : number;
 }
+

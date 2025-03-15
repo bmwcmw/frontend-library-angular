@@ -13,18 +13,24 @@ Search value: <input type="text" [(ngModel)]="valueForFiltering" />
 
 
 <section>
+    <p>Sorted by (in order) :
+        @for ( h of filterOption.headers; track h; let i = $index){
+            <span>{{h}} {{filterOption.ordersAsc[i]? "&#x2191;":"&#x2193;"}}, </span>
+        }
+    </p>
     <span>pages:</span>
 
-    @for ( page of [].constructor(totalPages); track $index ; let i = $index) {
-    <span [attr.data-pageNo]="i+1" (click)="switchToPage(i+1)"> {{i+1}} </span>
+    @for ( page of [].constructor(totalPages); track $index ; let i = $index ) {
+        <span [attr.data-pageNo]="i+1" (click)="switchToPage(i+1)"> {{i+1}} </span>
 
     }
+    <p>page At {{pageAt}}</p>
 </section>
 
 <table>
     <thead>
     <tr>
-        <th *ngFor = "let header of displayedTableData.headers" (click)="sort(header)">{{header}}</th>
+        <th *ngFor = "let header of displayedTableData.headers" (click)="modifyFilterOptionThenMultiSort(header)">{{header}}</th>
     </tr>
     </thead>
     <tbody>

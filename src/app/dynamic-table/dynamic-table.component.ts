@@ -25,10 +25,13 @@ export class DynamicTableComponent {
   filteredTableData : IDynamicTable = {headers : [], items : []};
   headerForFiltering: string ='';
   valueForFiltering: any = '';
+  filterOption: FilterOption = {headers : [], ordersAsc : []};
+
+
 
   displayedTableData :  IDynamicTable = {headers : [], items : []};
   totalPages : number =1;
-  rowsPerPage : number = 10;
+  rowsPerPage : number = 14;
   pageAt : number = 1;
   startRowAt : number = (this.pageAt - 1) * this.rowsPerPage;
   endRowAt : number = this.startRowAt + this.rowsPerPage;
@@ -36,6 +39,7 @@ export class DynamicTableComponent {
 
   constructor(){
     this.parseResultsToTableData();
+
   }
 
 
@@ -48,6 +52,8 @@ export class DynamicTableComponent {
 
           this.filteredTableData.headers = Object.keys(res.products[0]);
           this.filteredTableData.items = res.products;
+
+          console.log(this.filteredTableData);
 
           this.displayedTableData.headers = Object.keys(res.products[0]);
           this.fetchDisplayedTableFromFilteredTable();
@@ -76,6 +82,13 @@ export class DynamicTableComponent {
     this.parseResultsToTableData();
     this.headerForFiltering="";
     this.valueForFiltering="";
+    this.pageAt  = 1;
+    this.startRowAt  = (this.pageAt - 1) * this.rowsPerPage;
+    this.endRowAt  = this.startRowAt + this.rowsPerPage;
+    this.filterOption = {headers:[],ordersAsc:[]};
+
+
+
     console.log('after reset, all Data:');
     console.log(this.tableData);
     console.log('after reset, filtered Data:');
@@ -105,14 +118,52 @@ export class DynamicTableComponent {
   isAsc :boolean = true;
 
   sort(header:string){
+    console.log("isAsc: "+this.isAsc);
+    console.log("filteredTableData: ");
+    console.log(this.filteredTableData);
     if(this.isAsc){
-      this.sortResultsByHeaderDesc(header);
+      this.sortResultsByHeaderDescAndFetchDisplayedTable(header);
       this.isAsc = false;
     }else{
-      this.sortResultsByHeaderAsc(header);
+      this.sortResultsByHeaderAscAndFetchDisplayedTable(header);
       this.isAsc = true;
     }
   }
+
+  modifyFilterOptionThenMultiSort(header:string){
+    this.modifyFilterOption(header);
+    this.multiSort();
+    console.log('filterOption: ');
+    console.log(this.filterOption);
+
+  }
+
+  multiSort(){
+    console.log("headers:");
+    console.log(this.filterOption.headers);
+    this.sortResultsByFilterOptionAndFetchDisplayedTable(this.filterOption);
+    this.switchToPage(1);
+  }
+
+  private sortResultsByHeaderAscAndFetchDisplayedTable(header:string){
+
+    this.sortResultsByHeaderAsc(header);
+    this.fetchDisplayedTableFromFilteredTable();
+  }
+
+  private sortResultsByFilterOptionAndFetchDisplayedTable(filterOption:FilterOption){
+
+    this.sortResultsByFilterOption(filterOption);
+    this.fetchDisplayedTableFromFilteredTable();
+
+  }
+
+  private sortResultsByHeadersAscAndFetchDisplayedTable(header:string[]){
+    this.sortResultsByFilterOption(this.filterOption);
+
+    this.fetchDisplayedTableFromFilteredTable();
+  }
+
 
   private sortResultsByHeaderAsc(header:string){
     let valueType = typeof(this.tableData.items[0][header]);
@@ -124,17 +175,48 @@ export class DynamicTableComponent {
       alert("Sorry, can't sort the table with type "+valueType);
     }
 
-    this.fetchDisplayedTableFromFilteredTable();
 
   }
 
-  private sortResultsByHeaderDesc(header:string){
+  private sortResultsByFilterOption(filterOption:FilterOption){
+
+    this.filteredTableData.items.sort((a,b)=>{
+
+      let comparedValue = 0;
+
+      for(let i = 0; i < filterOption.headers.length; i++){
+        let valueType = typeof(this.tableData.items[0][filterOption.headers[i]]);
+        let header = filterOption.headers[i];
+        if( valueType === "number"){
+          comparedValue = Number(a[header])-Number(b[header]);
+        }else if( valueType === "string"){
+          comparedValue = a[header].localeCompare( b[header]);
+        }else{
+          //alert("Sorry, can't sort the table with type "+valueType);
+        }
+        if (!filterOption.ordersAsc[i]) comparedValue =  -comparedValue;
+        if(comparedValue !=0) return comparedValue;
+      }
+      return comparedValue;
+    });
+  }
+
+
+
+
+
+  private sortResultsByHeaderDescAndFetchDisplayedTable(header:string){
     this.sortResultsByHeaderAsc(header);
-    this.filteredTableData.items = this.filteredTableData.items.reverse();
+    this.filteredTableData.items.reverse();
+    this.fetchDisplayedTableFromFilteredTable();
   }
 
   private fetchDisplayedTableFromFilteredTable(){
+    console.log('before fetch: displayedTable');
+    console.log(this.displayedTableData);
     this.displayedTableData.items = this.filteredTableData.items.slice(this.startRowAt, this.endRowAt);
+    console.log('after fetch: displayedTable');
+    console.log(this.displayedTableData);
     this.calculatePages();
   }
 
@@ -150,10 +232,30 @@ export class DynamicTableComponent {
 
   switchToPage(page:number){
 
-    this.startRowAt = (page - 1) * this.rowsPerPage;
+    this.pageAt = page;
+    this.startRowAt = (this.pageAt - 1) * this.rowsPerPage;
     this.endRowAt = this.startRowAt + this.rowsPerPage;
     this.displayedTableData.items = this.filteredTableData.items.slice(this.startRowAt, this.endRowAt);
 
+  }
+
+  modifyFilterOption( header: string){
+    let index = this.filterOption.headers.indexOf(header);
+    if(index > -1){
+      if(this.filterOption.ordersAsc[index]){
+        this.filterOption.ordersAsc[index] = false;
+      }else{
+        this.filterOption.headers.splice(index,1);
+        this.filterOption.ordersAsc.splice(index,1);
+      }
+
+    }else{
+      this.filterOption.headers.push(header);
+      this.filterOption.ordersAsc.push(true);
+    }
+
+    console.log('filterOption: ');
+    console.log(this.filterOption);
   }
 
 }
@@ -161,4 +263,9 @@ export class DynamicTableComponent {
 interface IDynamicTable {
   headers: string[];
   items: Row[];
+}
+
+interface FilterOption {
+  headers : string[];
+  ordersAsc : boolean[];
 }
